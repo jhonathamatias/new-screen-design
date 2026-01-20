@@ -1,10 +1,11 @@
-import { Home, Receipt, RefreshCw, FileText } from "lucide-react";
+import { Home, Receipt, RefreshCw, FileText, FolderArchive } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 
 const menuItems = [
   { title: "Início", url: "/", icon: Home },
   { title: "Reembolsos", url: "/reembolsos", icon: Receipt },
   { title: "Troca de Titularidade", url: "/troca-titularidade", icon: RefreshCw },
+  { title: "CCB – Gestão Arquivos", url: "/ccb-gestao-arquivos", icon: FolderArchive },
   { title: "BDR", url: "/bdr", icon: FileText },
 ];
 
