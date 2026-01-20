@@ -12,7 +12,8 @@ import {
   Typography,
   Divider,
   Empty,
-  Pagination
+  Pagination,
+  Dropdown
 } from "antd";
 import { 
   SearchOutlined, 
@@ -21,9 +22,13 @@ import {
   DownloadOutlined,
   CheckCircleOutlined,
   ClockCircleOutlined,
-  FolderOpenOutlined
+  FolderOpenOutlined,
+  SettingOutlined,
+  FilterOutlined,
+  CopyOutlined
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
+import type { MenuProps } from "antd";
 
 const { Title, Text } = Typography;
 
@@ -50,6 +55,18 @@ interface Lote {
   dataCriacao: string;
   arquivos: Arquivo[];
   termo?: Termo;
+}
+
+interface BDRArquivo {
+  key: string;
+  id: number;
+  dataCriacao: string;
+  tipo: string;
+  ticket: string;
+  totalRegistros: number;
+  totalValor: string | null;
+  retornoMensagem: string | null;
+  status: "concluido" | "concluido_erros" | "enviado" | "pendente";
 }
 
 // Dados mockados para demonstração
@@ -107,6 +124,20 @@ const lotesTermo: Lote[] = [
   },
 ];
 
+// Dados mockados para a aba BDR baseado no print
+const bdrArquivos: BDRArquivo[] = [
+  { key: "1", id: 55645, dataCriacao: "20/01/2026 18:00:17", tipo: "Cedente", ticket: "449ee650-93df-4b2...", totalRegistros: 15, totalValor: null, retornoMensagem: null, status: "concluido" },
+  { key: "2", id: 55644, dataCriacao: "20/01/2026 17:45:10", tipo: "Cedente", ticket: "edef58c7-21f4-4a1...", totalRegistros: 11, totalValor: null, retornoMensagem: null, status: "concluido" },
+  { key: "3", id: 55643, dataCriacao: "20/01/2026 17:30:28", tipo: "Cedente", ticket: "2c38403b-a31e-41b...", totalRegistros: 26, totalValor: null, retornoMensagem: null, status: "concluido_erros" },
+  { key: "4", id: 55642, dataCriacao: "20/01/2026 17:29:24", tipo: "Cessão", ticket: "548f7644-5487-41a...", totalRegistros: 23594, totalValor: "R$ 6.815.596,54", retornoMensagem: null, status: "enviado" },
+  { key: "5", id: 55641, dataCriacao: "20/01/2026 17:15:19", tipo: "Cedente", ticket: "1a0daa41-295e-407...", totalRegistros: 21, totalValor: null, retornoMensagem: null, status: "concluido_erros" },
+  { key: "6", id: 55640, dataCriacao: "20/01/2026 17:00:19", tipo: "Cedente", ticket: "9c0c0161-292f-499...", totalRegistros: 20, totalValor: null, retornoMensagem: null, status: "concluido_erros" },
+  { key: "7", id: 55639, dataCriacao: "20/01/2026 16:45:10", tipo: "Cedente", ticket: "792bf4b9-4f96-4e8...", totalRegistros: 20, totalValor: null, retornoMensagem: null, status: "concluido" },
+  { key: "8", id: 55638, dataCriacao: "20/01/2026 16:30:16", tipo: "Cedente", ticket: "bd99b83e-58a4-4c7...", totalRegistros: 38, totalValor: null, retornoMensagem: null, status: "concluido" },
+  { key: "9", id: 55637, dataCriacao: "20/01/2026 16:15:15", tipo: "Cedente", ticket: "2e061a65-67a2-4d3...", totalRegistros: 92, totalValor: null, retornoMensagem: null, status: "concluido" },
+  { key: "10", id: 55636, dataCriacao: "20/01/2026 16:00:00", tipo: "Cessão", ticket: "a1b2c3d4-5678-90a...", totalRegistros: 150, totalValor: "R$ 1.250.000,00", retornoMensagem: null, status: "concluido" },
+];
+
 const lotesBDR: Lote[] = [
   {
     loteNumero: 2,
@@ -124,7 +155,9 @@ export default function CCBGestaoArquivosAntd() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedLote, setSelectedLote] = useState<Lote | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [bdrCurrentPage, setBdrCurrentPage] = useState(1);
   const pageSize = 5;
+  const bdrPageSize = 10;
 
   const getCurrentLotes = () => {
     switch (activeTab) {
@@ -143,6 +176,12 @@ export default function CCBGestaoArquivosAntd() {
     lote.arquivos.some((arquivo) =>
       arquivo.nome.toLowerCase().includes(searchTerm.toLowerCase())
     ) || lote.loteNumero.toString().includes(searchTerm)
+  );
+
+  const filteredBdrArquivos = bdrArquivos.filter((arquivo) =>
+    arquivo.id.toString().includes(searchTerm) ||
+    arquivo.tipo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    arquivo.ticket.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleOpenDrawer = (lote: Lote) => {
@@ -190,11 +229,221 @@ export default function CCBGestaoArquivosAntd() {
     },
   ];
 
+  const getStatusTag = (status: BDRArquivo["status"]) => {
+    switch (status) {
+      case "concluido":
+        return <Tag color="success" style={{ borderRadius: 4 }}>Concluído</Tag>;
+      case "concluido_erros":
+        return <Tag color="error" style={{ borderRadius: 4 }}>Concluído com erros</Tag>;
+      case "enviado":
+        return <Tag color="warning" style={{ borderRadius: 4 }}>Enviado</Tag>;
+      case "pendente":
+        return <Tag color="default" style={{ borderRadius: 4 }}>Pendente</Tag>;
+      default:
+        return <Tag>{status}</Tag>;
+    }
+  };
+
+  const actionMenuItems: MenuProps["items"] = [
+    { key: "1", label: "Ver detalhes" },
+    { key: "2", label: "Reprocessar" },
+    { key: "3", label: "Baixar arquivo" },
+  ];
+
+  const bdrColumns: ColumnsType<BDRArquivo> = [
+    {
+      title: "ID",
+      dataIndex: "id",
+      key: "id",
+      sorter: (a, b) => a.id - b.id,
+      width: 80,
+    },
+    {
+      title: "Data de criação",
+      dataIndex: "dataCriacao",
+      key: "dataCriacao",
+      sorter: true,
+      width: 140,
+    },
+    {
+      title: "Tipo",
+      dataIndex: "tipo",
+      key: "tipo",
+      filters: [
+        { text: "Cedente", value: "Cedente" },
+        { text: "Cessão", value: "Cessão" },
+      ],
+      onFilter: (value, record) => record.tipo === value,
+      width: 100,
+    },
+    {
+      title: "Ticket",
+      dataIndex: "ticket",
+      key: "ticket",
+      render: (text) => (
+        <Space>
+          <span>{text}</span>
+          <CopyOutlined 
+            style={{ color: "hsl(var(--primary))", cursor: "pointer" }} 
+            onClick={() => navigator.clipboard.writeText(text)}
+          />
+        </Space>
+      ),
+      width: 180,
+    },
+    {
+      title: "Total registros",
+      dataIndex: "totalRegistros",
+      key: "totalRegistros",
+      sorter: (a, b) => a.totalRegistros - b.totalRegistros,
+      width: 120,
+    },
+    {
+      title: "Total valor",
+      dataIndex: "totalValor",
+      key: "totalValor",
+      render: (value) => value || "–",
+      width: 140,
+    },
+    {
+      title: "Retorno mensagem",
+      dataIndex: "retornoMensagem",
+      key: "retornoMensagem",
+      render: (value) => value || "–",
+      width: 150,
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      filters: [
+        { text: "Concluído", value: "concluido" },
+        { text: "Concluído com erros", value: "concluido_erros" },
+        { text: "Enviado", value: "enviado" },
+        { text: "Pendente", value: "pendente" },
+      ],
+      onFilter: (value, record) => record.status === value,
+      render: (status) => getStatusTag(status),
+      width: 160,
+    },
+    {
+      title: "Ações",
+      key: "acoes",
+      width: 80,
+      render: () => (
+        <Dropdown menu={{ items: actionMenuItems }} trigger={["click"]}>
+          <Button type="text" icon={<SettingOutlined />} />
+        </Dropdown>
+      ),
+    },
+  ];
+
   const tabItems = [
     { key: "afinz", label: "Afinz" },
     { key: "termo", label: "Termo" },
     { key: "bdr", label: "BDR" },
   ];
+
+  const renderBDRContent = () => (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <Title level={4} style={{ margin: 0 }}>Arquivos</Title>
+        <Button 
+          icon={<FilterOutlined />}
+          style={{ 
+            backgroundColor: "hsl(var(--primary))",
+            borderColor: "hsl(var(--primary))",
+            color: "white"
+          }}
+        >
+          Filtros avançados
+        </Button>
+      </div>
+      <Table
+        columns={bdrColumns}
+        dataSource={filteredBdrArquivos}
+        pagination={{
+          current: bdrCurrentPage,
+          pageSize: bdrPageSize,
+          total: filteredBdrArquivos.length,
+          onChange: (page) => setBdrCurrentPage(page),
+          showSizeChanger: false,
+          showTotal: (total) => `Total: ${total} registros`,
+        }}
+        size="middle"
+        scroll={{ x: 1200 }}
+        style={{ backgroundColor: "white", borderRadius: 8 }}
+      />
+    </div>
+  );
+
+  const renderLotesContent = () => (
+    <>
+      {/* Lista de Lotes como Cards */}
+      <div className="grid gap-4">
+        {filteredLotes.length > 0 ? (
+          filteredLotes
+            .slice((currentPage - 1) * pageSize, currentPage * pageSize)
+            .map((lote) => (
+            <Card
+              key={`${activeTab}-${lote.loteNumero}`}
+              hoverable
+              onClick={() => handleOpenDrawer(lote)}
+              style={{ cursor: "pointer" }}
+            >
+              <div className="flex items-center justify-between">
+                <Space>
+                  <FolderOpenOutlined style={{ fontSize: 24, color: "hsl(var(--primary))" }} />
+                  <div>
+                    <Title level={5} style={{ margin: 0 }}>
+                      Lote {lote.loteNumero}
+                    </Title>
+                    <Text type="secondary">
+                      {lote.arquivos.length} arquivo(s) • Criado em {lote.dataCriacao}
+                    </Text>
+                  </div>
+                </Space>
+                <Space>
+                  {lote.termo && (
+                    <Tag color={lote.termo.status === "completo" ? "success" : "warning"}>
+                      Termo: {lote.termo.status === "completo" ? "Completo" : "Pendente"}
+                    </Tag>
+                  )}
+                  <Tag color="blue">
+                    {lote.arquivos.filter(a => a.status === "enviado").length}/{lote.arquivos.length} enviados
+                  </Tag>
+                </Space>
+              </div>
+            </Card>
+          ))
+        ) : (
+          <Card>
+            <Empty
+              description={
+                searchTerm
+                  ? "Nenhum lote encontrado para esta busca"
+                  : "Nenhum lote cadastrado. Clique em 'Novo Lote' para criar."
+              }
+            />
+          </Card>
+        )}
+      </div>
+
+      {/* Paginação */}
+      {filteredLotes.length > pageSize && (
+        <div className="flex justify-end mt-4">
+          <Pagination
+            current={currentPage}
+            total={filteredLotes.length}
+            pageSize={pageSize}
+            onChange={(page) => setCurrentPage(page)}
+            showSizeChanger={false}
+            showTotal={(total) => `Total: ${total} lotes`}
+          />
+        </div>
+      )}
+    </>
+  );
 
   return (
     <AppLayout>
@@ -209,100 +458,47 @@ export default function CCBGestaoArquivosAntd() {
               Gerencie os lotes, arquivos e termos de CCB
             </Text>
           </div>
-          <Button 
-            type="primary" 
-            icon={<PlusOutlined />}
-            style={{ 
-              backgroundColor: "hsl(var(--accent))",
-              borderColor: "hsl(var(--accent))"
-            }}
-          >
-            Novo Lote
-          </Button>
+          {activeTab !== "bdr" && (
+            <Button 
+              type="primary" 
+              icon={<PlusOutlined />}
+              style={{ 
+                backgroundColor: "hsl(var(--accent))",
+                borderColor: "hsl(var(--accent))"
+              }}
+            >
+              Novo Lote
+            </Button>
+          )}
         </div>
 
         {/* Tabs e Busca */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <Tabs
             activeKey={activeTab}
-            onChange={setActiveTab}
+            onChange={(key) => {
+              setActiveTab(key);
+              setCurrentPage(1);
+              setBdrCurrentPage(1);
+            }}
             items={tabItems}
             style={{ marginBottom: 0 }}
           />
 
-          <Input
-            placeholder="Buscar por lote ou arquivo..."
-            prefix={<SearchOutlined />}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            style={{ width: 288 }}
-            allowClear
-          />
-        </div>
-
-        {/* Lista de Lotes como Cards */}
-        <div className="grid gap-4">
-          {filteredLotes.length > 0 ? (
-            filteredLotes
-              .slice((currentPage - 1) * pageSize, currentPage * pageSize)
-              .map((lote) => (
-              <Card
-                key={`${activeTab}-${lote.loteNumero}`}
-                hoverable
-                onClick={() => handleOpenDrawer(lote)}
-                style={{ cursor: "pointer" }}
-              >
-                <div className="flex items-center justify-between">
-                  <Space>
-                    <FolderOpenOutlined style={{ fontSize: 24, color: "hsl(var(--primary))" }} />
-                    <div>
-                      <Title level={5} style={{ margin: 0 }}>
-                        Lote {lote.loteNumero}
-                      </Title>
-                      <Text type="secondary">
-                        {lote.arquivos.length} arquivo(s) • Criado em {lote.dataCriacao}
-                      </Text>
-                    </div>
-                  </Space>
-                  <Space>
-                    {lote.termo && (
-                      <Tag color={lote.termo.status === "completo" ? "success" : "warning"}>
-                        Termo: {lote.termo.status === "completo" ? "Completo" : "Pendente"}
-                      </Tag>
-                    )}
-                    <Tag color="blue">
-                      {lote.arquivos.filter(a => a.status === "enviado").length}/{lote.arquivos.length} enviados
-                    </Tag>
-                  </Space>
-                </div>
-              </Card>
-            ))
-          ) : (
-            <Card>
-              <Empty
-                description={
-                  searchTerm
-                    ? "Nenhum lote encontrado para esta busca"
-                    : "Nenhum lote cadastrado. Clique em 'Novo Lote' para criar."
-                }
-              />
-            </Card>
+          {activeTab !== "bdr" && (
+            <Input
+              placeholder="Buscar por lote ou arquivo..."
+              prefix={<SearchOutlined />}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{ width: 288 }}
+              allowClear
+            />
           )}
         </div>
 
-        {/* Paginação */}
-        {filteredLotes.length > pageSize && (
-          <div className="flex justify-end mt-4">
-            <Pagination
-              current={currentPage}
-              total={filteredLotes.length}
-              pageSize={pageSize}
-              onChange={(page) => setCurrentPage(page)}
-              showSizeChanger={false}
-              showTotal={(total) => `Total: ${total} lotes`}
-            />
-          </div>
-        )}
+        {/* Conteúdo baseado na aba */}
+        {activeTab === "bdr" ? renderBDRContent() : renderLotesContent()}
 
         {/* Drawer de Detalhes */}
         <Drawer
