@@ -126,16 +126,16 @@ const lotesTermo: Lote[] = [
 
 // Dados mockados para a aba BDR baseado no print
 const bdrArquivos: BDRArquivo[] = [
-  { key: "1", id: 55645, dataCriacao: "20/01/2026 18:00:17", tipo: "Cedente", ticket: "449ee650-93df-4b2...", totalRegistros: 15, totalValor: null, retornoMensagem: null, status: "concluido" },
-  { key: "2", id: 55644, dataCriacao: "20/01/2026 17:45:10", tipo: "Cedente", ticket: "edef58c7-21f4-4a1...", totalRegistros: 11, totalValor: null, retornoMensagem: null, status: "concluido" },
-  { key: "3", id: 55643, dataCriacao: "20/01/2026 17:30:28", tipo: "Cedente", ticket: "2c38403b-a31e-41b...", totalRegistros: 26, totalValor: null, retornoMensagem: null, status: "concluido_erros" },
-  { key: "4", id: 55642, dataCriacao: "20/01/2026 17:29:24", tipo: "Cessão", ticket: "548f7644-5487-41a...", totalRegistros: 23594, totalValor: "R$ 6.815.596,54", retornoMensagem: null, status: "enviado" },
-  { key: "5", id: 55641, dataCriacao: "20/01/2026 17:15:19", tipo: "Cedente", ticket: "1a0daa41-295e-407...", totalRegistros: 21, totalValor: null, retornoMensagem: null, status: "concluido_erros" },
-  { key: "6", id: 55640, dataCriacao: "20/01/2026 17:00:19", tipo: "Cedente", ticket: "9c0c0161-292f-499...", totalRegistros: 20, totalValor: null, retornoMensagem: null, status: "concluido_erros" },
-  { key: "7", id: 55639, dataCriacao: "20/01/2026 16:45:10", tipo: "Cedente", ticket: "792bf4b9-4f96-4e8...", totalRegistros: 20, totalValor: null, retornoMensagem: null, status: "concluido" },
-  { key: "8", id: 55638, dataCriacao: "20/01/2026 16:30:16", tipo: "Cedente", ticket: "bd99b83e-58a4-4c7...", totalRegistros: 38, totalValor: null, retornoMensagem: null, status: "concluido" },
-  { key: "9", id: 55637, dataCriacao: "20/01/2026 16:15:15", tipo: "Cedente", ticket: "2e061a65-67a2-4d3...", totalRegistros: 92, totalValor: null, retornoMensagem: null, status: "concluido" },
-  { key: "10", id: 55636, dataCriacao: "20/01/2026 16:00:00", tipo: "Cessão", ticket: "a1b2c3d4-5678-90a...", totalRegistros: 150, totalValor: "R$ 1.250.000,00", retornoMensagem: null, status: "concluido" },
+  { key: "1", id: 55645, dataCriacao: "20/01/2026 18:00:17", tipo: "CCB", ticket: "449ee650-93df-4b2...", totalRegistros: 15, totalValor: null, retornoMensagem: null, status: "concluido" },
+  { key: "2", id: 55644, dataCriacao: "20/01/2026 17:45:10", tipo: "CCB", ticket: "edef58c7-21f4-4a1...", totalRegistros: 11, totalValor: null, retornoMensagem: null, status: "concluido" },
+  { key: "3", id: 55643, dataCriacao: "20/01/2026 17:30:28", tipo: "CCB", ticket: "2c38403b-a31e-41b...", totalRegistros: 26, totalValor: null, retornoMensagem: null, status: "concluido_erros" },
+  { key: "4", id: 55642, dataCriacao: "20/01/2026 17:29:24", tipo: "CCB", ticket: "548f7644-5487-41a...", totalRegistros: 23594, totalValor: "R$ 6.815.596,54", retornoMensagem: null, status: "enviado" },
+  { key: "5", id: 55641, dataCriacao: "20/01/2026 17:15:19", tipo: "CCB", ticket: "1a0daa41-295e-407...", totalRegistros: 21, totalValor: null, retornoMensagem: null, status: "concluido_erros" },
+  { key: "6", id: 55640, dataCriacao: "20/01/2026 17:00:19", tipo: "CCB", ticket: "9c0c0161-292f-499...", totalRegistros: 20, totalValor: null, retornoMensagem: null, status: "concluido_erros" },
+  { key: "7", id: 55639, dataCriacao: "20/01/2026 16:45:10", tipo: "CCB", ticket: "792bf4b9-4f96-4e8...", totalRegistros: 20, totalValor: null, retornoMensagem: null, status: "concluido" },
+  { key: "8", id: 55638, dataCriacao: "20/01/2026 16:30:16", tipo: "CCB", ticket: "bd99b83e-58a4-4c7...", totalRegistros: 38, totalValor: null, retornoMensagem: null, status: "concluido" },
+  { key: "9", id: 55637, dataCriacao: "20/01/2026 16:15:15", tipo: "CCB", ticket: "2e061a65-67a2-4d3...", totalRegistros: 92, totalValor: null, retornoMensagem: null, status: "concluido" },
+  { key: "10", id: 55636, dataCriacao: "20/01/2026 16:00:00", tipo: "CCB", ticket: "a1b2c3d4-5678-90a...", totalRegistros: 150, totalValor: "R$ 1.250.000,00", retornoMensagem: null, status: "concluido" },
 ];
 
 const lotesBDR: Lote[] = [
@@ -270,8 +270,7 @@ export default function CCBGestaoArquivosAntd() {
       dataIndex: "tipo",
       key: "tipo",
       filters: [
-        { text: "Cedente", value: "Cedente" },
-        { text: "Cessão", value: "Cessão" },
+        { text: "CCB", value: "CCB" },
       ],
       onFilter: (value, record) => record.tipo === value,
       width: 100,
