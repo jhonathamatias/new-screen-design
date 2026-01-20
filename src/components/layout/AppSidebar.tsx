@@ -1,4 +1,4 @@
-import { Home, Receipt, RefreshCw, FileText, FolderArchive } from "lucide-react";
+import { Home, Receipt, RefreshCw, FileText, FolderArchive, LayoutGrid } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 
 const menuItems = [
@@ -6,6 +6,7 @@ const menuItems = [
   { title: "Reembolsos", url: "/reembolsos", icon: Receipt },
   { title: "Troca de Titularidade", url: "/troca-titularidade", icon: RefreshCw },
   { title: "CCB – Gestão Arquivos", url: "/ccb-gestao-arquivos", icon: FolderArchive },
+  { title: "CCB – Antd", url: "/ccb-gestao-arquivos-antd", icon: LayoutGrid },
   { title: "BDR", url: "/bdr", icon: FileText },
 ];
 
