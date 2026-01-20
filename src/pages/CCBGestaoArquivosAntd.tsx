@@ -11,7 +11,8 @@ import {
   Space, 
   Typography,
   Divider,
-  Empty
+  Empty,
+  Pagination
 } from "antd";
 import { 
   SearchOutlined, 
@@ -46,6 +47,7 @@ interface Termo {
 
 interface Lote {
   loteNumero: number;
+  dataCriacao: string;
   arquivos: Arquivo[];
   termo?: Termo;
 }
@@ -54,6 +56,7 @@ interface Lote {
 const lotesAfinz: Lote[] = [
   {
     loteNumero: 3,
+    dataCriacao: "20/01/2025",
     arquivos: [
       { key: "1", nome: "Cessao", status: "enviado", enviadoEm: "20/01/2025 9:00" },
       { key: "2", nome: "IOF", status: "enviado", enviadoEm: "20/01/2025 9:30" },
@@ -69,6 +72,7 @@ const lotesAfinz: Lote[] = [
   },
   {
     loteNumero: 2,
+    dataCriacao: "19/01/2025",
     arquivos: [
       { key: "1", nome: "Cessao", status: "enviado", enviadoEm: "20/01/2025 9:00" },
       { key: "2", nome: "IOF", status: "enviado", enviadoEm: "20/01/2025 9:30" },
@@ -77,6 +81,7 @@ const lotesAfinz: Lote[] = [
   },
   {
     loteNumero: 1,
+    dataCriacao: "18/01/2025",
     arquivos: [
       { key: "1", nome: "Cessao", status: "enviado", enviadoEm: "19/01/2025 14:00" },
       { key: "2", nome: "IOF", status: "pendente", enviadoEm: "-" },
@@ -87,6 +92,7 @@ const lotesAfinz: Lote[] = [
 const lotesTermo: Lote[] = [
   {
     loteNumero: 3,
+    dataCriacao: "20/01/2025",
     arquivos: [
       { key: "1", nome: "Termo_Cessao_v1", status: "enviado", enviadoEm: "20/01/2025 11:00" },
     ],
@@ -104,6 +110,7 @@ const lotesTermo: Lote[] = [
 const lotesBDR: Lote[] = [
   {
     loteNumero: 2,
+    dataCriacao: "18/01/2025",
     arquivos: [
       { key: "1", nome: "BDR_Relatorio_Jan", status: "enviado", enviadoEm: "18/01/2025 16:00" },
       { key: "2", nome: "BDR_Anexos", status: "enviado", enviadoEm: "18/01/2025 16:30" },
@@ -116,6 +123,8 @@ export default function CCBGestaoArquivosAntd() {
   const [activeTab, setActiveTab] = useState("afinz");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedLote, setSelectedLote] = useState<Lote | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 5;
 
   const getCurrentLotes = () => {
     switch (activeTab) {
@@ -234,7 +243,9 @@ export default function CCBGestaoArquivosAntd() {
         {/* Lista de Lotes como Cards */}
         <div className="grid gap-4">
           {filteredLotes.length > 0 ? (
-            filteredLotes.map((lote) => (
+            filteredLotes
+              .slice((currentPage - 1) * pageSize, currentPage * pageSize)
+              .map((lote) => (
               <Card
                 key={`${activeTab}-${lote.loteNumero}`}
                 hoverable
@@ -249,7 +260,7 @@ export default function CCBGestaoArquivosAntd() {
                         Lote {lote.loteNumero}
                       </Title>
                       <Text type="secondary">
-                        {lote.arquivos.length} arquivo(s)
+                        {lote.arquivos.length} arquivo(s) • Criado em {lote.dataCriacao}
                       </Text>
                     </div>
                   </Space>
@@ -278,6 +289,20 @@ export default function CCBGestaoArquivosAntd() {
             </Card>
           )}
         </div>
+
+        {/* Paginação */}
+        {filteredLotes.length > pageSize && (
+          <div className="flex justify-end mt-4">
+            <Pagination
+              current={currentPage}
+              total={filteredLotes.length}
+              pageSize={pageSize}
+              onChange={(page) => setCurrentPage(page)}
+              showSizeChanger={false}
+              showTotal={(total) => `Total: ${total} lotes`}
+            />
+          </div>
+        )}
 
         {/* Drawer de Detalhes */}
         <Drawer
