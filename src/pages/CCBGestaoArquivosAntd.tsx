@@ -26,215 +26,209 @@ import {
   FolderOpenOutlined,
   SettingOutlined,
   FilterOutlined,
-  CopyOutlined,
-  SearchOutlined
+  CopyOutlined
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import type { MenuProps } from "antd";
 
 const { Title, Text } = Typography;
 
-interface Arquivo {
+interface File {
   key: string;
-  nome: string;
+  name: string;
   status: "enviado" | "pendente";
-  enviadoEm: string;
+  sentAt: string;
 }
 
-interface Assinatura {
-  nome: string;
+interface Signature {
+  name: string;
   status: "assinado" | "pendente";
 }
 
-interface Termo {
-  urlDownload: string;
+interface Term {
+  downloadUrl: string;
   status: "pendente" | "completo";
-  assinaturas: Assinatura[];
+  signatures: Signature[];
 }
 
-interface Lote {
-  loteNumero: number;
-  dataCriacao: string;
-  arquivos: Arquivo[];
-  termo?: Termo;
+interface Batch {
+  batchNumber: number;
+  createdAt: string;
+  files: File[];
+  term?: Term;
 }
 
-interface BDRArquivo {
+interface BDRFile {
   key: string;
   id: number;
-  dataCriacao: string;
-  tipo: string;
+  createdAt: string;
+  type: string;
   ticket: string;
-  totalRegistros: number;
-  totalValor: string | null;
-  retornoMensagem: string | null;
+  totalRecords: number;
+  totalValue: string | null;
+  returnMessage: string | null;
   status: "concluido" | "concluido_erros" | "enviado" | "pendente";
 }
 
-interface TermoRegistro {
+interface TermRecord {
   key: string;
   id: number;
-  loteNumero: number;
-  dataCriacao: string;
-  urlDownload: string;
-  totalAssinaturas: number;
-  assinaturasCompletas: number;
+  batchNumber: number;
+  createdAt: string;
+  downloadUrl: string;
+  totalSignatures: number;
+  completedSignatures: number;
   status: "pendente" | "completo";
 }
 
-// Dados mockados para demonstração
-const lotesAfinz: Lote[] = [
+// Mock data for demonstration
+const afinzBatches: Batch[] = [
   {
-    loteNumero: 3,
-    dataCriacao: "20/01/2025",
-    arquivos: [
-      { key: "1", nome: "Cessao", status: "enviado", enviadoEm: "20/01/2025 9:00" },
-      { key: "2", nome: "IOF", status: "enviado", enviadoEm: "20/01/2025 9:30" },
+    batchNumber: 3,
+    createdAt: "20/01/2025",
+    files: [
+      { key: "1", name: "Cessao", status: "enviado", sentAt: "20/01/2025 9:00" },
+      { key: "2", name: "IOF", status: "enviado", sentAt: "20/01/2025 9:30" },
     ],
-    termo: {
-      urlDownload: "#",
+    term: {
+      downloadUrl: "#",
       status: "pendente",
-      assinaturas: [
-        { nome: "Jhon", status: "assinado" },
-        { nome: "Borges", status: "pendente" },
+      signatures: [
+        { name: "Jhon", status: "assinado" },
+        { name: "Borges", status: "pendente" },
       ],
     },
   },
   {
-    loteNumero: 2,
-    dataCriacao: "19/01/2025",
-    arquivos: [
-      { key: "1", nome: "Cessao", status: "enviado", enviadoEm: "20/01/2025 9:00" },
-      { key: "2", nome: "IOF", status: "enviado", enviadoEm: "20/01/2025 9:30" },
-      { key: "3", nome: "Contabilidade", status: "enviado", enviadoEm: "20/01/2025 10:00" },
+    batchNumber: 2,
+    createdAt: "19/01/2025",
+    files: [
+      { key: "1", name: "Cessao", status: "enviado", sentAt: "20/01/2025 9:00" },
+      { key: "2", name: "IOF", status: "enviado", sentAt: "20/01/2025 9:30" },
+      { key: "3", name: "Contabilidade", status: "enviado", sentAt: "20/01/2025 10:00" },
     ],
   },
   {
-    loteNumero: 1,
-    dataCriacao: "18/01/2025",
-    arquivos: [
-      { key: "1", nome: "Cessao", status: "enviado", enviadoEm: "19/01/2025 14:00" },
-      { key: "2", nome: "IOF", status: "pendente", enviadoEm: "-" },
+    batchNumber: 1,
+    createdAt: "18/01/2025",
+    files: [
+      { key: "1", name: "Cessao", status: "enviado", sentAt: "19/01/2025 14:00" },
+      { key: "2", name: "IOF", status: "pendente", sentAt: "-" },
     ],
   },
 ];
 
-const lotesTermo: Lote[] = [
+const termBatches: Batch[] = [
   {
-    loteNumero: 3,
-    dataCriacao: "20/01/2025",
-    arquivos: [
-      { key: "1", nome: "Termo_Cessao_v1", status: "enviado", enviadoEm: "20/01/2025 11:00" },
+    batchNumber: 3,
+    createdAt: "20/01/2025",
+    files: [
+      { key: "1", name: "Termo_Cessao_v1", status: "enviado", sentAt: "20/01/2025 11:00" },
     ],
-    termo: {
-      urlDownload: "#",
+    term: {
+      downloadUrl: "#",
       status: "completo",
-      assinaturas: [
-        { nome: "Jhon", status: "assinado" },
-        { nome: "Borges", status: "assinado" },
+      signatures: [
+        { name: "Jhon", status: "assinado" },
+        { name: "Borges", status: "assinado" },
       ],
     },
   },
 ];
 
-// Dados mockados para a aba BDR baseado no print
-const bdrArquivos: BDRArquivo[] = [
-  { key: "1", id: 55645, dataCriacao: "20/01/2026 18:00:17", tipo: "CCB", ticket: "449ee650-93df-4b2...", totalRegistros: 15, totalValor: null, retornoMensagem: null, status: "concluido" },
-  { key: "2", id: 55644, dataCriacao: "20/01/2026 17:45:10", tipo: "CCB", ticket: "edef58c7-21f4-4a1...", totalRegistros: 11, totalValor: null, retornoMensagem: null, status: "concluido" },
-  { key: "3", id: 55643, dataCriacao: "20/01/2026 17:30:28", tipo: "CCB", ticket: "2c38403b-a31e-41b...", totalRegistros: 26, totalValor: null, retornoMensagem: null, status: "concluido_erros" },
-  { key: "4", id: 55642, dataCriacao: "20/01/2026 17:29:24", tipo: "CCB", ticket: "548f7644-5487-41a...", totalRegistros: 23594, totalValor: "R$ 6.815.596,54", retornoMensagem: null, status: "enviado" },
-  { key: "5", id: 55641, dataCriacao: "20/01/2026 17:15:19", tipo: "CCB", ticket: "1a0daa41-295e-407...", totalRegistros: 21, totalValor: null, retornoMensagem: null, status: "concluido_erros" },
-  { key: "6", id: 55640, dataCriacao: "20/01/2026 17:00:19", tipo: "CCB", ticket: "9c0c0161-292f-499...", totalRegistros: 20, totalValor: null, retornoMensagem: null, status: "concluido_erros" },
-  { key: "7", id: 55639, dataCriacao: "20/01/2026 16:45:10", tipo: "CCB", ticket: "792bf4b9-4f96-4e8...", totalRegistros: 20, totalValor: null, retornoMensagem: null, status: "concluido" },
-  { key: "8", id: 55638, dataCriacao: "20/01/2026 16:30:16", tipo: "CCB", ticket: "bd99b83e-58a4-4c7...", totalRegistros: 38, totalValor: null, retornoMensagem: null, status: "concluido" },
-  { key: "9", id: 55637, dataCriacao: "20/01/2026 16:15:15", tipo: "CCB", ticket: "2e061a65-67a2-4d3...", totalRegistros: 92, totalValor: null, retornoMensagem: null, status: "concluido" },
-  { key: "10", id: 55636, dataCriacao: "20/01/2026 16:00:00", tipo: "CCB", ticket: "a1b2c3d4-5678-90a...", totalRegistros: 150, totalValor: "R$ 1.250.000,00", retornoMensagem: null, status: "concluido" },
+// Mock data for BDR tab based on print
+const bdrFiles: BDRFile[] = [
+  { key: "1", id: 55645, createdAt: "20/01/2026 18:00:17", type: "CCB", ticket: "449ee650-93df-4b2...", totalRecords: 15, totalValue: null, returnMessage: null, status: "concluido" },
+  { key: "2", id: 55644, createdAt: "20/01/2026 17:45:10", type: "CCB", ticket: "edef58c7-21f4-4a1...", totalRecords: 11, totalValue: null, returnMessage: null, status: "concluido" },
+  { key: "3", id: 55643, createdAt: "20/01/2026 17:30:28", type: "CCB", ticket: "2c38403b-a31e-41b...", totalRecords: 26, totalValue: null, returnMessage: null, status: "concluido_erros" },
+  { key: "4", id: 55642, createdAt: "20/01/2026 17:29:24", type: "CCB", ticket: "548f7644-5487-41a...", totalRecords: 23594, totalValue: "R$ 6.815.596,54", returnMessage: null, status: "enviado" },
+  { key: "5", id: 55641, createdAt: "20/01/2026 17:15:19", type: "CCB", ticket: "1a0daa41-295e-407...", totalRecords: 21, totalValue: null, returnMessage: null, status: "concluido_erros" },
+  { key: "6", id: 55640, createdAt: "20/01/2026 17:00:19", type: "CCB", ticket: "9c0c0161-292f-499...", totalRecords: 20, totalValue: null, returnMessage: null, status: "concluido_erros" },
+  { key: "7", id: 55639, createdAt: "20/01/2026 16:45:10", type: "CCB", ticket: "792bf4b9-4f96-4e8...", totalRecords: 20, totalValue: null, returnMessage: null, status: "concluido" },
+  { key: "8", id: 55638, createdAt: "20/01/2026 16:30:16", type: "CCB", ticket: "bd99b83e-58a4-4c7...", totalRecords: 38, totalValue: null, returnMessage: null, status: "concluido" },
+  { key: "9", id: 55637, createdAt: "20/01/2026 16:15:15", type: "CCB", ticket: "2e061a65-67a2-4d3...", totalRecords: 92, totalValue: null, returnMessage: null, status: "concluido" },
+  { key: "10", id: 55636, createdAt: "20/01/2026 16:00:00", type: "CCB", ticket: "a1b2c3d4-5678-90a...", totalRecords: 150, totalValue: "R$ 1.250.000,00", returnMessage: null, status: "concluido" },
 ];
 
-const lotesBDR: Lote[] = [
+const bdrBatches: Batch[] = [
   {
-    loteNumero: 2,
-    dataCriacao: "18/01/2025",
-    arquivos: [
-      { key: "1", nome: "BDR_Relatorio_Jan", status: "enviado", enviadoEm: "18/01/2025 16:00" },
-      { key: "2", nome: "BDR_Anexos", status: "enviado", enviadoEm: "18/01/2025 16:30" },
+    batchNumber: 2,
+    createdAt: "18/01/2025",
+    files: [
+      { key: "1", name: "BDR_Relatorio_Jan", status: "enviado", sentAt: "18/01/2025 16:00" },
+      { key: "2", name: "BDR_Anexos", status: "enviado", sentAt: "18/01/2025 16:30" },
     ],
   },
 ];
 
-// Dados mockados para a aba Termo (tabela de termos gerados)
-const termosRegistros: TermoRegistro[] = [
-  { key: "1", id: 1001, loteNumero: 3, dataCriacao: "20/01/2025 11:30:00", urlDownload: "#", totalAssinaturas: 2, assinaturasCompletas: 2, status: "completo" },
-  { key: "2", id: 1002, loteNumero: 5, dataCriacao: "19/01/2025 14:15:00", urlDownload: "#", totalAssinaturas: 3, assinaturasCompletas: 1, status: "pendente" },
-  { key: "3", id: 1003, loteNumero: 8, dataCriacao: "18/01/2025 09:45:00", urlDownload: "#", totalAssinaturas: 2, assinaturasCompletas: 2, status: "completo" },
-  { key: "4", id: 1004, loteNumero: 10, dataCriacao: "17/01/2025 16:20:00", urlDownload: "#", totalAssinaturas: 4, assinaturasCompletas: 0, status: "pendente" },
-  { key: "5", id: 1005, loteNumero: 12, dataCriacao: "16/01/2025 10:00:00", urlDownload: "#", totalAssinaturas: 2, assinaturasCompletas: 2, status: "completo" },
-  { key: "6", id: 1006, loteNumero: 15, dataCriacao: "15/01/2025 13:30:00", urlDownload: "#", totalAssinaturas: 3, assinaturasCompletas: 3, status: "completo" },
-  { key: "7", id: 1007, loteNumero: 18, dataCriacao: "14/01/2025 08:45:00", urlDownload: "#", totalAssinaturas: 2, assinaturasCompletas: 1, status: "pendente" },
-  { key: "8", id: 1008, loteNumero: 20, dataCriacao: "13/01/2025 17:10:00", urlDownload: "#", totalAssinaturas: 5, assinaturasCompletas: 5, status: "completo" },
+// Mock data for Term tab (table of generated terms)
+const termRecords: TermRecord[] = [
+  { key: "1", id: 1001, batchNumber: 3, createdAt: "20/01/2025 11:30:00", downloadUrl: "#", totalSignatures: 2, completedSignatures: 2, status: "completo" },
+  { key: "2", id: 1002, batchNumber: 5, createdAt: "19/01/2025 14:15:00", downloadUrl: "#", totalSignatures: 3, completedSignatures: 1, status: "pendente" },
+  { key: "3", id: 1003, batchNumber: 8, createdAt: "18/01/2025 09:45:00", downloadUrl: "#", totalSignatures: 2, completedSignatures: 2, status: "completo" },
+  { key: "4", id: 1004, batchNumber: 10, createdAt: "17/01/2025 16:20:00", downloadUrl: "#", totalSignatures: 4, completedSignatures: 0, status: "pendente" },
+  { key: "5", id: 1005, batchNumber: 12, createdAt: "16/01/2025 10:00:00", downloadUrl: "#", totalSignatures: 2, completedSignatures: 2, status: "completo" },
+  { key: "6", id: 1006, batchNumber: 15, createdAt: "15/01/2025 13:30:00", downloadUrl: "#", totalSignatures: 3, completedSignatures: 3, status: "completo" },
+  { key: "7", id: 1007, batchNumber: 18, createdAt: "14/01/2025 08:45:00", downloadUrl: "#", totalSignatures: 2, completedSignatures: 1, status: "pendente" },
+  { key: "8", id: 1008, batchNumber: 20, createdAt: "13/01/2025 17:10:00", downloadUrl: "#", totalSignatures: 5, completedSignatures: 5, status: "completo" },
 ];
 
 dayjs.extend(customParseFormat);
 
 export default function CCBGestaoArquivosAntd() {
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
-  const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("afinz");
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [selectedLote, setSelectedLote] = useState<Lote | null>(null);
+  const [selectedBatch, setSelectedBatch] = useState<Batch | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [bdrCurrentPage, setBdrCurrentPage] = useState(1);
-  const [termoCurrentPage, setTermoCurrentPage] = useState(1);
+  const [termCurrentPage, setTermCurrentPage] = useState(1);
   const pageSize = 5;
   const bdrPageSize = 10;
-  const termoPageSize = 10;
+  const termPageSize = 10;
 
-  const getCurrentLotes = () => {
+  const getCurrentBatches = () => {
     switch (activeTab) {
       case "afinz":
-        return lotesAfinz;
+        return afinzBatches;
       case "termo":
-        return lotesTermo;
+        return termBatches;
       case "bdr":
-        return lotesBDR;
+        return bdrBatches;
       default:
         return [];
     }
   };
 
-  const filteredLotes = getCurrentLotes().filter((lote) => {
+  const filteredBatches = getCurrentBatches().filter((batch) => {
     if (!selectedDate) return true;
-    const loteDate = dayjs(lote.dataCriacao, "DD/MM/YYYY");
-    return loteDate.isSame(selectedDate, "day");
+    const batchDate = dayjs(batch.createdAt, "DD/MM/YYYY");
+    return batchDate.isSame(selectedDate, "day");
   });
 
-  const filteredBdrArquivos = bdrArquivos.filter((arquivo) =>
-    arquivo.id.toString().includes(searchTerm) ||
-    arquivo.tipo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    arquivo.ticket.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredBdrFiles = bdrFiles;
 
-  const handleOpenDrawer = (lote: Lote) => {
-    setSelectedLote(lote);
+  const handleOpenDrawer = (batch: Batch) => {
+    setSelectedBatch(batch);
     setDrawerOpen(true);
   };
 
   const handleCloseDrawer = () => {
     setDrawerOpen(false);
-    setSelectedLote(null);
+    setSelectedBatch(null);
   };
 
-  const handleGerarTermo = () => {
-    if (selectedLote) {
-      console.log(`Gerando termo para Lote ${selectedLote.loteNumero}`);
+  const handleGenerateTerm = () => {
+    if (selectedBatch) {
+      console.log(`Gerando termo para Lote ${selectedBatch.batchNumber}`);
     }
   };
 
-  const columns: ColumnsType<Arquivo> = [
+  const fileColumns: ColumnsType<File> = [
     {
       title: "Arquivo",
-      dataIndex: "nome",
-      key: "nome",
+      dataIndex: "name",
+      key: "name",
       render: (text) => (
         <Space>
           <FileTextOutlined />
@@ -254,12 +248,12 @@ export default function CCBGestaoArquivosAntd() {
     },
     {
       title: "Enviado em",
-      dataIndex: "enviadoEm",
-      key: "enviadoEm",
+      dataIndex: "sentAt",
+      key: "sentAt",
     },
   ];
 
-  const getStatusTag = (status: BDRArquivo["status"]) => {
+  const getStatusTag = (status: BDRFile["status"]) => {
     switch (status) {
       case "concluido":
         return <Tag color="success" style={{ borderRadius: 4 }}>Concluído</Tag>;
@@ -280,7 +274,7 @@ export default function CCBGestaoArquivosAntd() {
     { key: "3", label: "Baixar arquivo" },
   ];
 
-  const bdrColumns: ColumnsType<BDRArquivo> = [
+  const bdrColumns: ColumnsType<BDRFile> = [
     {
       title: "ID",
       dataIndex: "id",
@@ -290,19 +284,19 @@ export default function CCBGestaoArquivosAntd() {
     },
     {
       title: "Data de criação",
-      dataIndex: "dataCriacao",
-      key: "dataCriacao",
+      dataIndex: "createdAt",
+      key: "createdAt",
       sorter: true,
       width: 140,
     },
     {
       title: "Tipo",
-      dataIndex: "tipo",
-      key: "tipo",
+      dataIndex: "type",
+      key: "type",
       filters: [
         { text: "CCB", value: "CCB" },
       ],
-      onFilter: (value, record) => record.tipo === value,
+      onFilter: (value, record) => record.type === value,
       width: 100,
     },
     {
@@ -322,22 +316,22 @@ export default function CCBGestaoArquivosAntd() {
     },
     {
       title: "Total registros",
-      dataIndex: "totalRegistros",
-      key: "totalRegistros",
-      sorter: (a, b) => a.totalRegistros - b.totalRegistros,
+      dataIndex: "totalRecords",
+      key: "totalRecords",
+      sorter: (a, b) => a.totalRecords - b.totalRecords,
       width: 120,
     },
     {
       title: "Total valor",
-      dataIndex: "totalValor",
-      key: "totalValor",
+      dataIndex: "totalValue",
+      key: "totalValue",
       render: (value) => value || "–",
       width: 140,
     },
     {
       title: "Retorno mensagem",
-      dataIndex: "retornoMensagem",
-      key: "retornoMensagem",
+      dataIndex: "returnMessage",
+      key: "returnMessage",
       render: (value) => value || "–",
       width: 150,
     },
@@ -367,13 +361,13 @@ export default function CCBGestaoArquivosAntd() {
     },
   ];
 
-  const termoActionMenuItems: MenuProps["items"] = [
+  const termActionMenuItems: MenuProps["items"] = [
     { key: "1", label: "Ver detalhes" },
     { key: "2", label: "Baixar termo" },
     { key: "3", label: "Reenviar para assinatura" },
   ];
 
-  const termoColumns: ColumnsType<TermoRegistro> = [
+  const termColumns: ColumnsType<TermRecord> = [
     {
       title: "ID",
       dataIndex: "id",
@@ -383,22 +377,22 @@ export default function CCBGestaoArquivosAntd() {
     },
     {
       title: "Lote",
-      dataIndex: "loteNumero",
-      key: "loteNumero",
-      sorter: (a, b) => a.loteNumero - b.loteNumero,
+      dataIndex: "batchNumber",
+      key: "batchNumber",
+      sorter: (a, b) => a.batchNumber - b.batchNumber,
       width: 80,
     },
     {
       title: "Data de criação",
-      dataIndex: "dataCriacao",
-      key: "dataCriacao",
+      dataIndex: "createdAt",
+      key: "createdAt",
       sorter: true,
       width: 160,
     },
     {
       title: "Download",
-      dataIndex: "urlDownload",
-      key: "urlDownload",
+      dataIndex: "downloadUrl",
+      key: "downloadUrl",
       render: (url) => (
         <Button 
           type="link" 
@@ -413,10 +407,10 @@ export default function CCBGestaoArquivosAntd() {
     },
     {
       title: "Assinaturas",
-      key: "assinaturas",
+      key: "signatures",
       render: (_, record) => (
         <span>
-          {record.assinaturasCompletas}/{record.totalAssinaturas}
+          {record.completedSignatures}/{record.totalSignatures}
         </span>
       ),
       width: 100,
@@ -442,17 +436,14 @@ export default function CCBGestaoArquivosAntd() {
       key: "acoes",
       width: 80,
       render: () => (
-        <Dropdown menu={{ items: termoActionMenuItems }} trigger={["click"]}>
+        <Dropdown menu={{ items: termActionMenuItems }} trigger={["click"]}>
           <Button type="text" icon={<SettingOutlined />} />
         </Dropdown>
       ),
     },
   ];
 
-  const filteredTermos = termosRegistros.filter((termo) =>
-    termo.id.toString().includes(searchTerm) ||
-    termo.loteNumero.toString().includes(searchTerm)
-  );
+  const filteredTerms = termRecords;
 
   const tabItems = [
     { key: "afinz", label: "Afinz" },
@@ -477,11 +468,11 @@ export default function CCBGestaoArquivosAntd() {
       </div>
       <Table
         columns={bdrColumns}
-        dataSource={filteredBdrArquivos}
+        dataSource={filteredBdrFiles}
         pagination={{
           current: bdrCurrentPage,
           pageSize: bdrPageSize,
-          total: filteredBdrArquivos.length,
+          total: filteredBdrFiles.length,
           onChange: (page) => setBdrCurrentPage(page),
           showSizeChanger: false,
           showTotal: (total) => `Total: ${total} registros`,
@@ -493,7 +484,7 @@ export default function CCBGestaoArquivosAntd() {
     </div>
   );
 
-  const renderTermoContent = () => (
+  const renderTermContent = () => (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <Title level={4} style={{ margin: 0 }}>Termos Gerados</Title>
@@ -505,13 +496,13 @@ export default function CCBGestaoArquivosAntd() {
         />
       </div>
       <Table
-        columns={termoColumns}
-        dataSource={filteredTermos}
+        columns={termColumns}
+        dataSource={filteredTerms}
         pagination={{
-          current: termoCurrentPage,
-          pageSize: termoPageSize,
-          total: filteredTermos.length,
-          onChange: (page) => setTermoCurrentPage(page),
+          current: termCurrentPage,
+          pageSize: termPageSize,
+          total: filteredTerms.length,
+          onChange: (page) => setTermCurrentPage(page),
           showSizeChanger: false,
           showTotal: (total) => `Total: ${total} termos`,
         }}
@@ -522,18 +513,18 @@ export default function CCBGestaoArquivosAntd() {
     </div>
   );
 
-  const renderLotesContent = () => (
+  const renderBatchesContent = () => (
     <>
-      {/* Lista de Lotes como Cards */}
+      {/* Batch list as Cards */}
       <div className="grid gap-4">
-        {filteredLotes.length > 0 ? (
-          filteredLotes
+        {filteredBatches.length > 0 ? (
+          filteredBatches
             .slice((currentPage - 1) * pageSize, currentPage * pageSize)
-            .map((lote) => (
+            .map((batch) => (
             <Card
-              key={`${activeTab}-${lote.loteNumero}`}
+              key={`${activeTab}-${batch.batchNumber}`}
               hoverable
-              onClick={() => handleOpenDrawer(lote)}
+              onClick={() => handleOpenDrawer(batch)}
               style={{ cursor: "pointer" }}
             >
               <div className="flex items-center justify-between">
@@ -541,21 +532,21 @@ export default function CCBGestaoArquivosAntd() {
                   <FolderOpenOutlined style={{ fontSize: 24, color: "hsl(var(--primary))" }} />
                   <div>
                     <Title level={5} style={{ margin: 0 }}>
-                      Lote {lote.loteNumero}
+                      Lote {batch.batchNumber}
                     </Title>
                     <Text type="secondary">
-                      {lote.arquivos.length} arquivo(s) • Criado em {lote.dataCriacao}
+                      {batch.files.length} arquivo(s) • Criado em {batch.createdAt}
                     </Text>
                   </div>
                 </Space>
                 <Space>
-                  {lote.termo && (
-                    <Tag color={lote.termo.status === "completo" ? "success" : "warning"}>
-                      Termo: {lote.termo.status === "completo" ? "Completo" : "Pendente"}
+                  {batch.term && (
+                    <Tag color={batch.term.status === "completo" ? "success" : "warning"}>
+                      Termo: {batch.term.status === "completo" ? "Completo" : "Pendente"}
                     </Tag>
                   )}
                   <Tag color="blue">
-                    {lote.arquivos.filter(a => a.status === "enviado").length}/{lote.arquivos.length} enviados
+                    {batch.files.filter(a => a.status === "enviado").length}/{batch.files.length} enviados
                   </Tag>
                 </Space>
               </div>
@@ -564,22 +555,18 @@ export default function CCBGestaoArquivosAntd() {
         ) : (
           <Card>
             <Empty
-              description={
-                searchTerm
-                  ? "Nenhum lote encontrado para esta busca"
-                  : "Nenhum lote cadastrado. Clique em 'Novo Lote' para criar."
-              }
+              description="Nenhum lote cadastrado. Clique em 'Novo Lote' para criar."
             />
           </Card>
         )}
       </div>
 
-      {/* Paginação */}
-      {filteredLotes.length > pageSize && (
+      {/* Pagination */}
+      {filteredBatches.length > pageSize && (
         <div className="flex justify-end mt-4">
           <Pagination
             current={currentPage}
-            total={filteredLotes.length}
+            total={filteredBatches.length}
             pageSize={pageSize}
             onChange={(page) => setCurrentPage(page)}
             showSizeChanger={false}
@@ -593,7 +580,7 @@ export default function CCBGestaoArquivosAntd() {
   return (
     <AppLayout>
       <div className="space-y-6">
-        {/* Header */}
+        {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <Title level={3} style={{ margin: 0, color: "hsl(var(--foreground))" }}>
@@ -605,7 +592,7 @@ export default function CCBGestaoArquivosAntd() {
           </div>
         </div>
 
-        {/* Tabs e Busca */}
+        {/* Tabs and Search */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <Tabs
             activeKey={activeTab}
@@ -613,7 +600,7 @@ export default function CCBGestaoArquivosAntd() {
               setActiveTab(key);
               setCurrentPage(1);
               setBdrCurrentPage(1);
-              setTermoCurrentPage(1);
+              setTermCurrentPage(1);
             }}
             items={tabItems}
             style={{ marginBottom: 0 }}
@@ -631,36 +618,36 @@ export default function CCBGestaoArquivosAntd() {
           )}
         </div>
 
-        {/* Conteúdo baseado na aba */}
+        {/* Content based on active tab */}
         {activeTab === "bdr" && renderBDRContent()}
-        {activeTab === "termo" && renderTermoContent()}
-        {activeTab === "afinz" && renderLotesContent()}
+        {activeTab === "termo" && renderTermContent()}
+        {activeTab === "afinz" && renderBatchesContent()}
 
-        {/* Drawer de Detalhes */}
+        {/* Details Drawer */}
         <Drawer
-          title={selectedLote ? `Lote ${selectedLote.loteNumero}` : "Detalhes do Lote"}
+          title={selectedBatch ? `Lote ${selectedBatch.batchNumber}` : "Detalhes do Lote"}
           placement="right"
-          width={600}
+          size="large"
           onClose={handleCloseDrawer}
           open={drawerOpen}
           extra={
             <Space>
-              {selectedLote && !selectedLote.termo && (
-                <Button type="primary" onClick={handleGerarTermo}>
+              {selectedBatch && !selectedBatch.term && (
+                <Button type="primary" onClick={handleGenerateTerm}>
                   Gerar Termo
                 </Button>
               )}
             </Space>
           }
         >
-          {selectedLote && (
+          {selectedBatch && (
             <div className="space-y-6">
-              {/* Arquivos */}
+              {/* Files */}
               <div>
                 <Title level={5}>Arquivos</Title>
                 <Table
-                  columns={columns}
-                  dataSource={selectedLote.arquivos}
+                  columns={fileColumns}
+                  dataSource={selectedBatch.files}
                   pagination={false}
                   size="small"
                 />
@@ -668,53 +655,54 @@ export default function CCBGestaoArquivosAntd() {
 
               <Divider />
 
-              {/* Termo */}
+              {/* Term */}
               <div>
                 <Title level={5}>Termo</Title>
-                {selectedLote.termo ? (
+                {selectedBatch.term ? (
                   <Card size="small">
-                    <Space direction="vertical" className="w-full">
-                      <div className="flex items-center justify-between">
-                        <Text>Status:</Text>
-                        <Tag color={selectedLote.termo.status === "completo" ? "success" : "warning"}>
-                          {selectedLote.termo.status === "completo" ? "Completo" : "Pendente"}
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2">
+                        <Text strong>Status:</Text>
+                        <Tag color={selectedBatch.term.status === "completo" ? "success" : "warning"}>
+                          {selectedBatch.term.status === "completo" ? "Completo" : "Pendente"}
                         </Tag>
                       </div>
-                      <div className="flex items-center justify-between">
-                        <Text>Download:</Text>
+                      <div className="flex items-center gap-2">
+                        <Text strong>Download:</Text>
                         <Button 
                           type="link" 
                           icon={<DownloadOutlined />}
-                          href={selectedLote.termo.urlDownload}
+                          href={selectedBatch.term.downloadUrl}
+                          className="p-0"
                         >
                           Baixar Termo
                         </Button>
                       </div>
                       <Divider style={{ margin: "12px 0" }} />
-                      <Title level={5} style={{ fontSize: 14 }}>Assinaturas</Title>
-                      {selectedLote.termo.assinaturas.map((assinatura, idx) => (
-                        <div key={idx} className="flex items-center justify-between py-1">
-                          <Text>{assinatura.nome}</Text>
+                      <Title level={5} style={{ fontSize: 14, margin: 0 }}>Assinaturas</Title>
+                      {selectedBatch.term.signatures.map((signature) => (
+                        <div key={signature.name} className="flex items-center gap-2 py-1">
+                          <Text>{signature.name}</Text>
                           <Space>
-                            {assinatura.status === "assinado" ? (
+                            {signature.status === "assinado" ? (
                               <CheckCircleOutlined style={{ color: "#52c41a" }} />
                             ) : (
                               <ClockCircleOutlined style={{ color: "#faad14" }} />
                             )}
-                            <Tag color={assinatura.status === "assinado" ? "success" : "warning"}>
-                              {assinatura.status === "assinado" ? "Assinado" : "Pendente"}
+                            <Tag color={signature.status === "assinado" ? "success" : "warning"}>
+                              {signature.status === "assinado" ? "Assinado" : "Pendente"}
                             </Tag>
                           </Space>
                         </div>
                       ))}
-                    </Space>
+                    </div>
                   </Card>
                 ) : (
                   <Empty
                     description="Nenhum termo gerado para este lote"
                     image={Empty.PRESENTED_IMAGE_SIMPLE}
                   >
-                    <Button type="primary" onClick={handleGerarTermo}>
+                    <Button type="primary" onClick={handleGenerateTerm}>
                       Gerar Termo
                     </Button>
                   </Empty>

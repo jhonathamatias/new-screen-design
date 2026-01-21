@@ -1,6 +1,8 @@
 import { AppLayout } from "@/components/layout/AppLayout";
 import { LoteCard } from "@/components/bdr/LoteCard";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, Typography } from "antd";
+
+const { Title, Text } = Typography;
 
 // Dados mockados para demonstração
 const lotesData = [
@@ -42,72 +44,63 @@ export default function BDRPage() {
     // Implementar lógica de geração de termo
   };
 
+  const tabItems = [
+    {
+      key: "afinz",
+      label: "Afinz",
+      children: (
+        <div className="space-y-4">
+          {lotesData.map((lote) => (
+            <LoteCard
+              key={lote.loteNumero}
+              loteNumero={lote.loteNumero}
+              arquivos={lote.arquivos}
+              termo={lote.termo}
+              onGerarTermo={() => handleGerarTermo(lote.loteNumero)}
+            />
+          ))}
+        </div>
+      ),
+    },
+    {
+      key: "termo",
+      label: "Termo",
+      children: (
+        <div className="border rounded-lg p-8 text-center text-gray-500 bg-white">
+          <p>Conteúdo da aba Termo</p>
+          <p className="text-sm mt-1">
+            Visualize e gerencie os termos gerados
+          </p>
+        </div>
+      ),
+    },
+    {
+      key: "bdr",
+      label: "BDR",
+      children: (
+        <div className="border rounded-lg p-8 text-center text-gray-500 bg-white">
+          <p>Conteúdo da aba BDR</p>
+          <p className="text-sm mt-1">
+            Informações gerais do BDR
+          </p>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <AppLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">
+          <Title level={2} style={{ margin: 0 }}>
             Gestão de BDR
-          </h1>
-          <p className="text-muted-foreground mt-1">
+          </Title>
+          <Text type="secondary">
             Gerencie os lotes, arquivos e termos do BDR
-          </p>
+          </Text>
         </div>
 
-        <Tabs defaultValue="afinz" className="w-full">
-          <TabsList className="bg-card border border-border">
-            <TabsTrigger 
-              value="afinz" 
-              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-            >
-              Afinz
-            </TabsTrigger>
-            <TabsTrigger 
-              value="termo"
-              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-            >
-              Termo
-            </TabsTrigger>
-            <TabsTrigger 
-              value="bdr"
-              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-            >
-              BDR
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="afinz" className="mt-6">
-            <div className="space-y-4">
-              {lotesData.map((lote) => (
-                <LoteCard
-                  key={lote.loteNumero}
-                  loteNumero={lote.loteNumero}
-                  arquivos={lote.arquivos}
-                  termo={lote.termo}
-                  onGerarTermo={() => handleGerarTermo(lote.loteNumero)}
-                />
-              ))}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="termo" className="mt-6">
-            <div className="border rounded-lg p-8 text-center text-muted-foreground bg-card">
-              <p>Conteúdo da aba Termo</p>
-              <p className="text-sm mt-1">
-                Visualize e gerencie os termos gerados
-              </p>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="bdr" className="mt-6">
-            <div className="border rounded-lg p-8 text-center text-muted-foreground bg-card">
-              <p>Conteúdo da aba BDR</p>
-              <p className="text-sm mt-1">
-                Informações gerais do BDR
-              </p>
-            </div>
-          </TabsContent>
-        </Tabs>
+        <Tabs defaultActiveKey="afinz" items={tabItems} />
       </div>
     </AppLayout>
   );

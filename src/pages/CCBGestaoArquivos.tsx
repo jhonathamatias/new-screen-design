@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { LoteCard } from "@/components/bdr/LoteCard";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Search, Plus } from "lucide-react";
+import { Tabs, Button, Input, Typography, Empty } from "antd";
+import { SearchOutlined, PlusOutlined } from "@ant-design/icons";
+
+const { Title, Text } = Typography;
 
 // Dados mockados para demonstração
 const lotesAfinz = [
@@ -94,63 +94,46 @@ export default function CCBGestaoArquivos() {
     ) || lote.loteNumero.toString().includes(searchTerm)
   );
 
+  const tabItems = [
+    { key: "afinz", label: "Afinz" },
+    { key: "termo", label: "Termo" },
+    { key: "bdr", label: "BDR" },
+  ];
+
   return (
     <AppLayout>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">
+            <Title level={2} style={{ margin: 0 }}>
               CCB – Gestão Arquivos
-            </h1>
-            <p className="text-muted-foreground mt-1">
+            </Title>
+            <Text type="secondary">
               Gerencie os lotes, arquivos e termos de CCB
-            </p>
+            </Text>
           </div>
-          <Button className="bg-accent hover:bg-accent/90 text-accent-foreground">
-            <Plus className="w-4 h-4 mr-2" />
+          <Button type="primary" icon={<PlusOutlined />}>
             Novo Lote
           </Button>
         </div>
 
         {/* Tabs e Busca */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <Tabs 
-            value={activeTab} 
-            onValueChange={setActiveTab} 
+          <Tabs
+            activeKey={activeTab}
+            onChange={setActiveTab}
+            items={tabItems}
             className="w-full sm:w-auto"
-          >
-            <TabsList className="bg-card border border-border">
-              <TabsTrigger
-                value="afinz"
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-              >
-                Afinz
-              </TabsTrigger>
-              <TabsTrigger
-                value="termo"
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-              >
-                Termo
-              </TabsTrigger>
-              <TabsTrigger
-                value="bdr"
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-              >
-                BDR
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
+          />
 
-          <div className="relative w-full sm:w-72">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar por lote ou arquivo..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9"
-            />
-          </div>
+          <Input
+            placeholder="Buscar por lote ou arquivo..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            prefix={<SearchOutlined />}
+            className="w-full sm:w-72"
+          />
         </div>
 
         {/* Lista de Lotes */}
@@ -166,14 +149,18 @@ export default function CCBGestaoArquivos() {
               />
             ))
           ) : (
-            <div className="border rounded-lg p-12 text-center text-muted-foreground bg-card">
-              <p className="text-lg font-medium">Nenhum lote encontrado</p>
-              <p className="text-sm mt-1">
-                {searchTerm
-                  ? "Tente buscar com outros termos"
-                  : "Clique em 'Novo Lote' para criar um novo lote"}
-              </p>
-            </div>
+            <Empty
+              description={
+                <div>
+                  <p className="text-lg font-medium">Nenhum lote encontrado</p>
+                  <p className="text-sm mt-1 text-gray-500">
+                    {searchTerm
+                      ? "Tente buscar com outros termos"
+                      : "Clique em 'Novo Lote' para criar um novo lote"}
+                  </p>
+                </div>
+              }
+            />
           )}
         </div>
       </div>

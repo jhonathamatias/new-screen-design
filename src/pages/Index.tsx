@@ -1,15 +1,8 @@
 import { AppLayout } from "@/components/layout/AppLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { FileDown, Filter } from "lucide-react";
+import { Card, Button, Table, Typography, Empty } from "antd";
+import { DownloadOutlined, FilterOutlined } from "@ant-design/icons";
+
+const { Title } = Typography;
 
 const statsCards = [
   { title: "Total Enviado", value: 0 },
@@ -65,22 +58,26 @@ const documentosDestino = [
   },
 ];
 
+const columns = tableHeaders.map((header) => ({
+  title: header,
+  dataIndex: header.toLowerCase().replace(/\s+/g, "_"),
+  key: header.toLowerCase().replace(/\s+/g, "_"),
+}));
+
 export default function Index() {
   return (
     <AppLayout>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-foreground">
+          <Title level={2} style={{ margin: 0 }}>
             Troca de Titularidade
-          </h1>
+          </Title>
           <div className="flex items-center gap-3">
-            <Button className="bg-primary hover:bg-primary/90">
-              <Filter className="w-4 h-4 mr-2" />
+            <Button type="primary" icon={<FilterOutlined />}>
               Filtros Avançados
             </Button>
-            <Button variant="outline">
-              <FileDown className="w-4 h-4 mr-2" />
+            <Button icon={<DownloadOutlined />}>
               Exportar
             </Button>
           </div>
@@ -89,95 +86,80 @@ export default function Index() {
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {statsCards.map((stat) => (
-            <Card key={stat.title} className="bg-card">
-              <CardContent className="pt-6">
-                <div className="text-center">
-                  <p className="text-sm text-muted-foreground">{stat.title}</p>
-                  <p className="text-3xl font-bold text-foreground mt-2">
-                    {stat.value}
-                  </p>
-                </div>
-              </CardContent>
+            <Card key={stat.title}>
+              <div className="text-center">
+                <p className="text-sm text-gray-500">{stat.title}</p>
+                <p className="text-3xl font-bold mt-2">
+                  {stat.value}
+                </p>
+              </div>
             </Card>
           ))}
         </div>
 
         {/* Main Table */}
-        <Card className="bg-card">
-          <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-muted/50">
-                    {tableHeaders.map((header) => (
-                      <TableHead key={header} className="font-semibold whitespace-nowrap">
-                        {header}
-                      </TableHead>
-                    ))}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  <TableRow>
-                    <TableCell
-                      colSpan={tableHeaders.length}
-                      className="h-32 text-center text-muted-foreground"
-                    >
-                      <div className="flex flex-col items-center justify-center">
-                        <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center mb-3">
-                          <FileDown className="w-8 h-8 text-muted-foreground" />
-                        </div>
-                        <p>Não há dados</p>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
+        <Card>
+          <Table
+            columns={columns}
+            dataSource={[]}
+            locale={{
+              emptyText: (
+                <Empty
+                  description="Não há dados"
+                  image={<DownloadOutlined style={{ fontSize: 48, color: "#bfbfbf" }} />}
+                />
+              ),
+            }}
+            scroll={{ x: "max-content" }}
+          />
         </Card>
 
         {/* Documentos Destino Section */}
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-foreground">
+          <Title level={4} style={{ margin: 0 }}>
             Documentos destino das trocas{" "}
-            <span className="text-muted-foreground font-normal">
+            <span className="text-gray-500 font-normal">
               (Últimos 6 meses)
             </span>
-          </h2>
+          </Title>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {documentosDestino.map((doc, index) => (
-              <Card key={index} className="bg-card">
-                <CardHeader className="pb-2">
+              <Card
+                key={index}
+                title={
                   <div className="flex items-start justify-between">
-                    <CardTitle className="text-sm font-medium text-foreground leading-tight flex-1">
+                    <span className="text-sm font-medium leading-tight flex-1">
                       {doc.title}
                       {doc.count !== null && (
-                        <span className="text-muted-foreground ml-1">
+                        <span className="text-gray-500 ml-1">
                           ({doc.count})
                         </span>
                       )}
-                    </CardTitle>
-                    <Button variant="outline" size="sm" className="ml-2 shrink-0">
-                      <FileDown className="w-4 h-4 mr-1" />
+                    </span>
+                    <Button
+                      type="link"
+                      size="small"
+                      icon={<DownloadOutlined />}
+                      className="ml-2 shrink-0 p-0"
+                    >
                       Exportar
                     </Button>
                   </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 gap-4">
-                    {doc.subItems.map((item, itemIndex) => (
-                      <div key={itemIndex} className="text-center">
-                        <p className="text-xs text-muted-foreground">
-                          {item.label}
-                        </p>
-                        <p className="text-2xl font-bold text-foreground">
-                          {item.value}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
+                }
+              >
+                <div className="grid grid-cols-2 gap-4">
+                  {doc.subItems.map((item, itemIndex) => (
+                    <div key={itemIndex} className="text-center">
+                      <p className="text-xs text-gray-500">
+                        {item.label}
+                      </p>
+                      <p className="text-2xl font-bold">
+                        {item.value}
+                      </p>
+                    </div>
+                  ))}
+                </div>
               </Card>
             ))}
           </div>
