@@ -1,73 +1,183 @@
-# Welcome to your Lovable project
+# CCB File Management System
 
-## Project info
+A modern file management system for CCB (Certificado de Cédulas de Crédito Bancário) built with React, TypeScript, Ant Design, and Tailwind CSS.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
-
-## How can I edit this code?
-
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
+## 🚀 Technologies
 
 This project is built with:
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- **React** 18.3.1 - UI library
+- **TypeScript** 5.8.3 - Type safety
+- **Vite** 5.4.19 - Build tool and dev server
+- **Ant Design** 6.2.1 - UI component library
+- **Tailwind CSS** 3.4.17 - Utility-first CSS framework
+- **React Router** 6.30.1 - Client-side routing
+- **Day.js** 1.11.19 - Date manipulation
 
-## How can I deploy this project?
+## 📋 Prerequisites
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+- Node.js (v18 or higher recommended)
+- npm, pnpm, or bun package manager
 
-## Can I connect a custom domain to my Lovable project?
+## 🛠️ Installation
 
-Yes, you can!
+Clone the repository and install dependencies:
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+```sh
+# Clone the repository
+git clone <YOUR_GIT_URL>
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+# Navigate to the project directory
+cd new-screen-design
+
+# Install dependencies
+npm install
+# or
+pnpm install
+# or
+bun install
+```
+
+## 🏃 Running the Project
+
+### Development Mode
+
+Start the development server with hot module replacement:
+
+```sh
+npm run dev
+# or
+pnpm dev
+# or
+bun dev
+```
+
+The application will be available at `http://localhost:5173` (or the port shown in the terminal).
+
+### Build for Production
+
+Create an optimized production build:
+
+```sh
+npm run build
+# or
+pnpm build
+# or
+bun build
+```
+
+### Preview Production Build
+
+Preview the production build locally:
+
+```sh
+npm run preview
+# or
+pnpm preview
+# or
+bun preview
+```
+
+## 🧪 Testing
+
+Run tests:
+
+```sh
+npm run test
+# or
+pnpm test
+# or
+bun test
+```
+
+Run tests in watch mode:
+
+```sh
+npm run test:watch
+# or
+pnpm test:watch
+# or
+bun test:watch
+```
+
+## 📁 Project Structure
+
+```
+src/
+├── components/        # Reusable React components
+│   ├── bdr/          # BDR-specific components
+│   ├── layout/       # Layout components (Header, Sidebar, etc.)
+│   └── ui/           # (removed - using Ant Design instead)
+├── hooks/            # Custom React hooks
+├── lib/              # Utility functions
+├── pages/            # Page components
+│   ├── BDRPage.tsx
+│   ├── CCBGestaoArquivos.tsx
+│   ├── CCBGestaoArquivosAntd.tsx
+│   ├── Index.tsx
+│   └── NotFound.tsx
+├── App.tsx           # Main app component
+└── main.tsx          # Application entry point
+```
+
+## 🎨 UI Components
+
+This project uses **Ant Design** as the primary UI component library. All components are imported from `antd`:
+
+- Layout components: Layout, Card, Divider
+- Navigation: Menu, Tabs, Breadcrumb
+- Data Display: Table, Tag, Typography, Empty
+- Data Entry: Input, DatePicker, Button
+- Feedback: Drawer, Dropdown, Pagination
+- Icons: `@ant-design/icons`
+
+**Tailwind CSS** is used for styling and utility classes alongside Ant Design's built-in styles.
+
+## 📝 Code Style
+
+- All code (variables, functions, interfaces, types) is written in **English**
+- User-facing text (labels, messages, titles) is in **Portuguese**
+- Components follow React functional component patterns with TypeScript
+- ESLint is configured for code quality
+
+## 🔧 Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run build:dev` - Build in development mode
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
+- `npm run test` - Run tests
+- `npm run test:watch` - Run tests in watch mode
+
+## 📦 Dependencies
+
+### Main Dependencies
+
+- `antd` - Ant Design component library
+- `@ant-design/icons` - Icon library for Ant Design
+- `react` & `react-dom` - React core libraries
+- `react-router-dom` - Routing
+- `dayjs` - Date manipulation
+- `clsx` & `tailwind-merge` - Utility libraries for class names
+
+### Development Dependencies
+
+- `typescript` - TypeScript compiler
+- `vite` - Build tool
+- `vitest` - Testing framework
+- `eslint` - Linter
+- `tailwindcss` - CSS framework
+- `autoprefixer` & `postcss` - CSS processing
+
+## 🌐 Deployment
+
+Build the project and deploy the `dist` folder to your hosting provider of choice.
+
+## 📄 License
+
+This project is private and proprietary.
+
+## 👥 Contributing
+
+This is a private project. Contributions are limited to authorized team members.
