@@ -69,6 +69,17 @@ interface BDRArquivo {
   status: "concluido" | "concluido_erros" | "enviado" | "pendente";
 }
 
+interface TermoRegistro {
+  key: string;
+  id: number;
+  loteNumero: number;
+  dataCriacao: string;
+  urlDownload: string;
+  totalAssinaturas: number;
+  assinaturasCompletas: number;
+  status: "pendente" | "completo";
+}
+
 // Dados mockados para demonstração
 const lotesAfinz: Lote[] = [
   {
@@ -149,6 +160,18 @@ const lotesBDR: Lote[] = [
   },
 ];
 
+// Dados mockados para a aba Termo (tabela de termos gerados)
+const termosRegistros: TermoRegistro[] = [
+  { key: "1", id: 1001, loteNumero: 3, dataCriacao: "20/01/2025 11:30:00", urlDownload: "#", totalAssinaturas: 2, assinaturasCompletas: 2, status: "completo" },
+  { key: "2", id: 1002, loteNumero: 5, dataCriacao: "19/01/2025 14:15:00", urlDownload: "#", totalAssinaturas: 3, assinaturasCompletas: 1, status: "pendente" },
+  { key: "3", id: 1003, loteNumero: 8, dataCriacao: "18/01/2025 09:45:00", urlDownload: "#", totalAssinaturas: 2, assinaturasCompletas: 2, status: "completo" },
+  { key: "4", id: 1004, loteNumero: 10, dataCriacao: "17/01/2025 16:20:00", urlDownload: "#", totalAssinaturas: 4, assinaturasCompletas: 0, status: "pendente" },
+  { key: "5", id: 1005, loteNumero: 12, dataCriacao: "16/01/2025 10:00:00", urlDownload: "#", totalAssinaturas: 2, assinaturasCompletas: 2, status: "completo" },
+  { key: "6", id: 1006, loteNumero: 15, dataCriacao: "15/01/2025 13:30:00", urlDownload: "#", totalAssinaturas: 3, assinaturasCompletas: 3, status: "completo" },
+  { key: "7", id: 1007, loteNumero: 18, dataCriacao: "14/01/2025 08:45:00", urlDownload: "#", totalAssinaturas: 2, assinaturasCompletas: 1, status: "pendente" },
+  { key: "8", id: 1008, loteNumero: 20, dataCriacao: "13/01/2025 17:10:00", urlDownload: "#", totalAssinaturas: 5, assinaturasCompletas: 5, status: "completo" },
+];
+
 export default function CCBGestaoArquivosAntd() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("afinz");
@@ -156,8 +179,10 @@ export default function CCBGestaoArquivosAntd() {
   const [selectedLote, setSelectedLote] = useState<Lote | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [bdrCurrentPage, setBdrCurrentPage] = useState(1);
+  const [termoCurrentPage, setTermoCurrentPage] = useState(1);
   const pageSize = 5;
   const bdrPageSize = 10;
+  const termoPageSize = 10;
 
   const getCurrentLotes = () => {
     switch (activeTab) {
@@ -337,6 +362,93 @@ export default function CCBGestaoArquivosAntd() {
     },
   ];
 
+  const termoActionMenuItems: MenuProps["items"] = [
+    { key: "1", label: "Ver detalhes" },
+    { key: "2", label: "Baixar termo" },
+    { key: "3", label: "Reenviar para assinatura" },
+  ];
+
+  const termoColumns: ColumnsType<TermoRegistro> = [
+    {
+      title: "ID",
+      dataIndex: "id",
+      key: "id",
+      sorter: (a, b) => a.id - b.id,
+      width: 80,
+    },
+    {
+      title: "Lote",
+      dataIndex: "loteNumero",
+      key: "loteNumero",
+      sorter: (a, b) => a.loteNumero - b.loteNumero,
+      width: 80,
+    },
+    {
+      title: "Data de criação",
+      dataIndex: "dataCriacao",
+      key: "dataCriacao",
+      sorter: true,
+      width: 160,
+    },
+    {
+      title: "Download",
+      dataIndex: "urlDownload",
+      key: "urlDownload",
+      render: (url) => (
+        <Button 
+          type="link" 
+          icon={<DownloadOutlined />} 
+          href={url}
+          style={{ padding: 0 }}
+        >
+          Baixar
+        </Button>
+      ),
+      width: 120,
+    },
+    {
+      title: "Assinaturas",
+      key: "assinaturas",
+      render: (_, record) => (
+        <span>
+          {record.assinaturasCompletas}/{record.totalAssinaturas}
+        </span>
+      ),
+      width: 100,
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      filters: [
+        { text: "Completo", value: "completo" },
+        { text: "Pendente", value: "pendente" },
+      ],
+      onFilter: (value, record) => record.status === value,
+      render: (status) => (
+        <Tag color={status === "completo" ? "success" : "warning"} style={{ borderRadius: 4 }}>
+          {status === "completo" ? "Completo" : "Pendente assinaturas"}
+        </Tag>
+      ),
+      width: 160,
+    },
+    {
+      title: "Ações",
+      key: "acoes",
+      width: 80,
+      render: () => (
+        <Dropdown menu={{ items: termoActionMenuItems }} trigger={["click"]}>
+          <Button type="text" icon={<SettingOutlined />} />
+        </Dropdown>
+      ),
+    },
+  ];
+
+  const filteredTermos = termosRegistros.filter((termo) =>
+    termo.id.toString().includes(searchTerm) ||
+    termo.loteNumero.toString().includes(searchTerm)
+  );
+
   const tabItems = [
     { key: "afinz", label: "Afinz" },
     { key: "termo", label: "Termo" },
@@ -371,6 +483,37 @@ export default function CCBGestaoArquivosAntd() {
         }}
         size="middle"
         scroll={{ x: 1200 }}
+        style={{ backgroundColor: "white", borderRadius: 8 }}
+      />
+    </div>
+  );
+
+  const renderTermoContent = () => (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <Title level={4} style={{ margin: 0 }}>Termos Gerados</Title>
+        <Input
+          placeholder="Buscar por ID ou lote..."
+          prefix={<SearchOutlined />}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{ width: 250 }}
+          allowClear
+        />
+      </div>
+      <Table
+        columns={termoColumns}
+        dataSource={filteredTermos}
+        pagination={{
+          current: termoCurrentPage,
+          pageSize: termoPageSize,
+          total: filteredTermos.length,
+          onChange: (page) => setTermoCurrentPage(page),
+          showSizeChanger: false,
+          showTotal: (total) => `Total: ${total} termos`,
+        }}
+        size="middle"
+        scroll={{ x: 900 }}
         style={{ backgroundColor: "white", borderRadius: 8 }}
       />
     </div>
@@ -457,7 +600,7 @@ export default function CCBGestaoArquivosAntd() {
               Gerencie os lotes, arquivos e termos de CCB
             </Text>
           </div>
-          {activeTab !== "bdr" && (
+          {activeTab === "afinz" && (
             <Button 
               type="primary" 
               icon={<PlusOutlined />}
@@ -479,12 +622,13 @@ export default function CCBGestaoArquivosAntd() {
               setActiveTab(key);
               setCurrentPage(1);
               setBdrCurrentPage(1);
+              setTermoCurrentPage(1);
             }}
             items={tabItems}
             style={{ marginBottom: 0 }}
           />
 
-          {activeTab !== "bdr" && (
+          {activeTab === "afinz" && (
             <Input
               placeholder="Buscar por lote ou arquivo..."
               prefix={<SearchOutlined />}
@@ -497,7 +641,9 @@ export default function CCBGestaoArquivosAntd() {
         </div>
 
         {/* Conteúdo baseado na aba */}
-        {activeTab === "bdr" ? renderBDRContent() : renderLotesContent()}
+        {activeTab === "bdr" && renderBDRContent()}
+        {activeTab === "termo" && renderTermoContent()}
+        {activeTab === "afinz" && renderLotesContent()}
 
         {/* Drawer de Detalhes */}
         <Drawer
