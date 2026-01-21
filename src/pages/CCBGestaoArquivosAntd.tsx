@@ -17,7 +17,6 @@ import {
 } from "antd";
 import { 
   SearchOutlined, 
-  PlusOutlined, 
   FileTextOutlined,
   DownloadOutlined,
   CheckCircleOutlined,
@@ -198,9 +197,7 @@ export default function CCBGestaoArquivosAntd() {
   };
 
   const filteredLotes = getCurrentLotes().filter((lote) =>
-    lote.arquivos.some((arquivo) =>
-      arquivo.nome.toLowerCase().includes(searchTerm.toLowerCase())
-    ) || lote.loteNumero.toString().includes(searchTerm)
+    lote.dataCriacao.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const filteredBdrArquivos = bdrArquivos.filter((arquivo) =>
@@ -600,18 +597,6 @@ export default function CCBGestaoArquivosAntd() {
               Gerencie os lotes, arquivos e termos de CCB
             </Text>
           </div>
-          {activeTab === "afinz" && (
-            <Button 
-              type="primary" 
-              icon={<PlusOutlined />}
-              style={{ 
-                backgroundColor: "hsl(var(--accent))",
-                borderColor: "hsl(var(--accent))"
-              }}
-            >
-              Novo Lote
-            </Button>
-          )}
         </div>
 
         {/* Tabs e Busca */}
@@ -630,7 +615,7 @@ export default function CCBGestaoArquivosAntd() {
 
           {activeTab === "afinz" && (
             <Input
-              placeholder="Buscar por lote ou arquivo..."
+              placeholder="Buscar por data..."
               prefix={<SearchOutlined />}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
