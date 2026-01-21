@@ -2,7 +2,6 @@ import { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { 
   Tabs, 
-  Input, 
   Button, 
   Card, 
   Table, 
@@ -13,10 +12,13 @@ import {
   Divider,
   Empty,
   Pagination,
-  Dropdown
+  Dropdown,
+  DatePicker
 } from "antd";
+import type { Dayjs } from "dayjs";
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 import { 
-  SearchOutlined, 
   FileTextOutlined,
   DownloadOutlined,
   CheckCircleOutlined,
@@ -24,7 +26,8 @@ import {
   FolderOpenOutlined,
   SettingOutlined,
   FilterOutlined,
-  CopyOutlined
+  CopyOutlined,
+  SearchOutlined
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import type { MenuProps } from "antd";
@@ -171,7 +174,10 @@ const termosRegistros: TermoRegistro[] = [
   { key: "8", id: 1008, loteNumero: 20, dataCriacao: "13/01/2025 17:10:00", urlDownload: "#", totalAssinaturas: 5, assinaturasCompletas: 5, status: "completo" },
 ];
 
+dayjs.extend(customParseFormat);
+
 export default function CCBGestaoArquivosAntd() {
+  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("afinz");
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -196,9 +202,11 @@ export default function CCBGestaoArquivosAntd() {
     }
   };
 
-  const filteredLotes = getCurrentLotes().filter((lote) =>
-    lote.dataCriacao.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredLotes = getCurrentLotes().filter((lote) => {
+    if (!selectedDate) return true;
+    const loteDate = dayjs(lote.dataCriacao, "DD/MM/YYYY");
+    return loteDate.isSame(selectedDate, "day");
+  });
 
   const filteredBdrArquivos = bdrArquivos.filter((arquivo) =>
     arquivo.id.toString().includes(searchTerm) ||
@@ -489,12 +497,10 @@ export default function CCBGestaoArquivosAntd() {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <Title level={4} style={{ margin: 0 }}>Termos Gerados</Title>
-        <Input
-          placeholder="Buscar por ID ou lote..."
-          prefix={<SearchOutlined />}
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={{ width: 250 }}
+        <DatePicker
+          placeholder="Filtrar por data"
+          format="DD/MM/YYYY"
+          style={{ width: 200 }}
           allowClear
         />
       </div>
@@ -614,12 +620,12 @@ export default function CCBGestaoArquivosAntd() {
           />
 
           {activeTab === "afinz" && (
-            <Input
-              placeholder="Buscar por data..."
-              prefix={<SearchOutlined />}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              style={{ width: 288 }}
+            <DatePicker
+              placeholder="Filtrar por data"
+              format="DD/MM/YYYY"
+              value={selectedDate}
+              onChange={(date) => setSelectedDate(date)}
+              style={{ width: 200 }}
               allowClear
             />
           )}
